@@ -1,6 +1,7 @@
 def transformResponse(response, #response vector
                       tt='Regression' #operation type
                       ):
+    import numpy as np
     N=len(response)
     response=np.reshape(response,(len(response),1))
     respMat=np.array([])
