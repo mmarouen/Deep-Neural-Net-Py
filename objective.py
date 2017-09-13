@@ -4,6 +4,7 @@ def objective(X, #data matrix
               wD, #weight decay
               ll='RSS' #loss function
               ):
+    import numpy as np
     N,K=X.shape
     L=len(Neurons)
     obj=0
