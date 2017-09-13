@@ -16,6 +16,7 @@ def neuralNet(Input,response,InputTest=None,respTest=None, #input data
               gradientCheck=False,traceObj=False,traceWeights=False #debugging
               ):
     import time
+    import numpy as np
     t1=time.clock()
     
     if epochs==None: epochs=15000
