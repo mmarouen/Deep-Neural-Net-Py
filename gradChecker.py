@@ -8,6 +8,7 @@ def gradchecker(Neurons, #neurons
                 outF='Identity', #final layer activation 
                 activation='sigmoid', #hidden layer activation
                 tol=1e-5):
+    import numpy as np
     L=len(A)
     l=np.random.choice(L-1)
     i=np.random.choice(Neurons[l].shape[0])
