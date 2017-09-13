@@ -11,6 +11,7 @@ def OptimizeCost(Neurons,resp,X,respT=None,XT=None, #input data
              ):
     r=1
     t=0
+    import numpy as np
     error=None
     resp0=np.asmatrix(resp['respMat'])
     response=np.asmatrix(resp['Response'])
