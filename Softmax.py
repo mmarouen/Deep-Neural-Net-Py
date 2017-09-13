@@ -1,4 +1,5 @@
 def Softmax(X):
+    import numpy as np
     X=np.matrix(X)
     eps=1e-15
     Eps=1-eps
