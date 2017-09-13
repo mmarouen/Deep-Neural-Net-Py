@@ -14,6 +14,7 @@ def backProp(A, #activations
             momentum=None, #momentum data
             rmsprop=None #rmsprop data
             ):
+    import numpy as np
     N,K=resp.shape
     L=len(A)
     delta=[None]*L
