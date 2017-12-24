@@ -1,39 +1,42 @@
-def neuralNet(Input,response,InputTest=None,respTest=None, #input data
-              DW=6, #neurons vector
-              opType='Regression', #'Regression' or 'Classification' 
-              loss='RSS', loss function 'RSS' or 'CrossEntropy'
-              outputFunc='Identity', output function 
-              epochs=None, # count of epochs
-              tol=1e-7, #tolerance
-              activationFunc='sigmoid', #activation function
-              rate=0.01, #learning rate
-              optAlg='GD', #optimization alg: 'GD', 'Momentum', 'RMSProp'
-              beta1=0.9, #beta1 for momentum
-              beta2=0.99, #beta2 for RMSProp
-              mini_batch=None, #mini batch size in exponent of 2
-              weightDecay=False,lambd=None, #weight decay
-              probs=1, #dropout factor
-              gradientCheck=False,traceObj=False,traceWeights=False #debugging
-              ):
+import numpy as np
+
+def neuralNet(Input,response,InputTest=None,respTest=None,
+              DW=6,
+              opType='Regression',loss='RSS',outputFunc='Identity',
+              epochs=None,
+              tol=1e-7,
+              activationFunc='sigmoid',
+              rate=0.01,
+              optAlg='GD',
+              beta1=0.9,
+              beta2=0.99,
+              mini_batch=None,
+              weightDecay=False,lambd=None,
+              probs=1,
+              batchNorm=False,
+              gradientCheck=False,traceObj=False,traceWeights=False):
     import time
-    import numpy as np
     t1=time.clock()
     
     if epochs==None: epochs=15000
     rsp=transformResponse(response,opType)
-    active=init(Input,rsp['respMat'],DW,activationFunc,optAlg)
-    optimize=OptimizeCost(active['Neurons'],rsp,Input,respT=respTest,XT=InputTest,
-                          tt=opType,ll=loss,outF=outputFunc,activation=activationFunc,
-                          rr=rate,minib=mini_batch,
-                          wD=[weightDecay,lambd],gradCheck=gradientCheck,traceObj=traceObj,
-                          traceW=traceWeights,Epochs=epochs,Tolerance=tol,
-                          optimization=optAlg,beta1=beta1,beta2=beta2,
-                          momentum=active['Momentum'],rmsprop=active['RMSProp'])
+    active=init(DW,Input,rsp['respMat'],activationFunc,optAlg,batchNorm)
+    optimize=OptimizeCost(active['W'],active['b'],rsp,Input,respTest,InputTest,
+                          opType,loss,outputFunc,activationFunc,
+                          rate,mini_batch,
+                          [weightDecay,lambd],gradientCheck,traceObj,traceWeights,epochs,tol,
+                          optAlg,beta1,beta2,
+                          active['momentum'],active['momentum_b'],active['momentum_g'],active['momentum_betas'],
+                          active['rmsprop'],active['rmsprop_b'],active['rmsprop_g'],active['rmsprop_betas'],
+                          active['bnList'])
+    
     t2=time.clock()
     L={'DW':DW,'tt':opType,'ll':loss,'outF':outputFunc,'active':activationFunc,'rr':rate,'wD':weightDecay,
-       'lambd':lambd,'epochs':epochs}
-    return{'yhat':optimize['yhat'],'yhatMat':optimize['yhatMat'],'y':response,'CL':rsp['Classes'],'Neurons':optimize['Neurons'],
-           'Delta':optimize['Delta'],'A':optimize['A'],'r':optimize['epochs'],'gradCheck':optimize['grad'],
+       'lambd':lambd,'epochs':epochs,'bnVars':active['bnList']}
+    return{'yhat':optimize['yhat'],'yhatMat':optimize['yhatMat'],'y':response,'CL':rsp['Classes'],
+           'W':optimize['W'],'b':optimize['b'],'popStats':optimize['popStats'],
+           'Delta':optimize['Delta'],'A':optimize['A'],'r':optimize['epochs'],
+           'gradCheck':optimize['grad'].T,
            'trainLoss':optimize['trainLoss'],'testLoss':optimize['testLoss'],
            'trainScores':optimize['trainScores'],'testScores':optimize['testScores'],
            'trWeights':optimize['wTune'],'duration':t2-t1,'args':L
